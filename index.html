@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKYROCK x MADARA : VISION 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --sky-red: #ed1c24; --twitch: #9146ff; --dark-bg: #050505; --neon-green: #00ff88; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--dark-bg); color: white; overflow-x: hidden; }
+        .font-sky { font-family: 'Montserrat', sans-serif; text-transform: uppercase; }
+        .text-sky { color: var(--sky-red); }
+        .bg-sky { background-color: var(--sky-red); }
+        
+        /* SCROLL BAR */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--sky-red); }
+
+        /* BUBBLE GLASSMOPHISM 2K25 */
+        .glass { 
+            background: rgba(20, 20, 20, 0.4); 
+            backdrop-filter: blur(24px); 
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
+            border-radius: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .glass:hover {
+            transform: translateY(-8px) scale(1.01);
+            border-color: rgba(237, 28, 36, 0.4);
+            box-shadow: 0 30px 60px -12px rgba(237, 28, 36, 0.2), inset 0 0 20px rgba(255,255,255,0.05);
+        }
+        
+        /* ORGANIC BLOBS */
+        .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.3; z-index: 0; pointer-events: none; animation: float 15s infinite ease-in-out alternate; }
+        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, -30px); } }
+        
+        /* ANIMATIONS & UTILS */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .counter { font-variant-numeric: tabular-nums; }
+        
+        .marquee-container { overflow: hidden; white-space: nowrap; position: relative; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+        .marquee-content { display: inline-block; animation: marquee 40s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .trust-carousel { overflow: hidden; position: relative; }
+        .trust-mask { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(5,5,5,0.8), transparent 12%, transparent 88%, rgba(5,5,5,0.8)); z-index: 2; }
+        .trust-track { display: flex; gap: 1.5rem; padding: 0.75rem 0; animation: trust-scroll 12s linear infinite; }
+        .trust-item { flex: 0 0 auto; border-radius: 1.25rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 15px 35px -15px rgba(0,0,0,0.6); background: #0a0a0a; }
+        .trust-item img { height: 140px; width: auto; display: block; object-fit: cover; }
+        @keyframes trust-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .hero-panel { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 24px; background: radial-gradient(circle at 20% 20%, rgba(237,28,36,0.08), transparent 45%), radial-gradient(circle at 80% 0%, rgba(145,70,255,0.08), transparent 40%), rgba(5,5,5,0.65); box-shadow: 0 25px 50px -25px rgba(0,0,0,0.7), 0 0 30px -10px rgba(237,28,36,0.25); }
+        .hero-panel::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.02) 100%); }
+        .hero-chip { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); box-shadow: 0 0 18px rgba(237,28,36,0.25); }
+        
+        .bg-grid { background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 50px 50px; }
+        #progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, #ed1c24, #9146ff); z-index: 100; width: 0%; transition: width 0.1s; }
+
+        /* SECTION DIVIDER (RED BAND) */
+        .red-band {
+            background: #ed1c24;
+            transform: skewY(-2deg);
+            padding: 1.5rem 0;
+            margin: 6rem 0;
+            box-shadow: 0 0 50px rgba(237, 28, 36, 0.4);
+            position: relative;
+            z-index: 20;
+            width: 105%;
+            left: -2.5%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .red-band h2 {
+            transform: skewY(2deg);
+            margin: 0;
+            letter-spacing: -0.05em;
+            position: relative;
+            z-index: 10;
+        }
+        .red-band::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px);
+        }
+
+        /* AI TERMINAL */
+        .terminal-window { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 80px -20px rgba(0,255,136,0.15); border-radius: 2rem; }
+        .scan-line { width: 100%; height: 2px; background: rgba(0, 255, 136, 0.5); position: absolute; animation: scan 3s linear infinite; top: 0; pointer-events: none; z-index: 10; box-shadow: 0 0 10px rgba(0, 255, 136, 0.8); }
+        @keyframes scan { 0% { top: 0%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        .cursor-blink { display: inline-block; width: 8px; height: 16px; background-color: #00ff88; animation: blink 1s infinite; vertical-align: middle; margin-left: 4px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body class="bg-grid text-white">
+
+    <div id="progress-bar"></div>
+
+    <!-- NAV -->
+    <nav class="absolute top-0 left-0 w-full z-30 flex flex-col items-center pointer-events-none">
+        <div class="w-full max-w-6xl px-4 md:px-6 pt-0 md:pt-1">
+            <div class="w-full border border-red-500/30 bg-black/70 rounded-2xl px-4 md:px-6 py-1.5 md:py-2 shadow-[0_10px_30px_rgba(0,0,0,0.35)] flex flex-col items-center gap-2">
+                <div class="flex items-center gap-2">
+                    <img src="assets/madara-logo.png" class="h-20 md:h-40 object-contain" alt="Madara Community" onerror="this.style.display='none'">
+                    <span class="text-3xl md:text-4xl font-black text-red-500 drop-shadow-[0_0_18px_rgba(237,28,36,0.65)] tracking-tight px-1 translate-x-[-10px] inline-block">x</span>
+                    <img src="assets/SKYROCK_FM_LOGO.svg.png" class="h-10 md:h-12 object-contain" alt="Skyrock" onerror="this.style.display='none'">
+                </div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-red-500 bg-black/80 px-4 py-2 rounded-full border border-red-500/20 shadow-[0_0_20px_rgba(237,28,36,0.3)]">Confidential 2K26</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 1. PRÉSENTATION : L'EXPERT -->
+    <section class="min-h-screen flex items-center justify-center relative p-6 pt-64 pb-20 overflow-hidden">
+        <div class="blob bg-red-600 w-[600px] h-[600px] top-[-10%] left-[-10%] opacity-20"></div>
+        
+        <div class="max-w-7xl w-full reveal active relative z-10">
+            <div class="mb-14 space-y-4 hero-panel">
+                <div class="flex flex-wrap items-center gap-3 relative z-10">
+                    <span class="hero-chip text-[11px] font-black uppercase tracking-[0.25em] text-gray-200">
+                        <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_12px_rgba(237,28,36,0.7)]"></span> Briefing Urgent
+                    </span>
+                    <span class="hero-chip text-[11px] font-black uppercase tracking-[0.2em] text-green-300 border-green-500/40 shadow-[0_0_18px_rgba(0,255,136,0.25)]">
+                        Occupation Totale H24
+                    </span>
+                    <span class="hero-chip text-[11px] font-black uppercase tracking-[0.2em] text-white border-white/20">
+                        Décision Immédiate
+                    </span>
+                </div>
+                <h1 class="font-sky text-4xl md:text-6xl text-white tracking-tight leading-tight relative z-10">SKYROCK x MADARA : VISION 2026</h1>
+                <p class="text-lg md:text-xl text-gray-200 max-w-3xl leading-relaxed relative z-10">
+                    Analyse & Vision Madara : reprendre la nuit, saturer l’algorithme et verrouiller le terrain. Activation immédiate.
+                </p>
+                <div class="relative z-10 flex flex-wrap items-center gap-3 text-[11px] font-black uppercase">
+                    <span class="hero-chip bg-red-600/20 border-red-500/40 text-red-200 shadow-[0_0_20px_rgba(237,28,36,0.35)]">
+                        Document Confidentiel
+                    </span>
+                    <span class="hero-chip bg-white/10 border-white/20 text-white">
+                        Accès tracé via endpoint localisé — contrôle d’intégrité actif
+                    </span>
+                    <span class="hero-chip bg-green-500/15 border-green-400/40 text-green-200">
+                        Sécurité offensive & monitoring en continu
+                    </span>
+                </div>
+            </div>
+            <!-- INTRO -->
+            <div class="grid md:grid-cols-12 gap-12 items-center mb-20">
+                <div class="md:col-span-5 flex flex-col justify-center">
+                    <div class="inline-block border border-white/20 bg-white/5 backdrop-blur px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6 w-fit animate-pulse">Social Media Management Premium</div>
+                    
+                    <!-- MADARA LOGO LARGE -->
+                    <img src="Blanc + texte.png" class="w-64 mb-8 object-contain" alt="Madara Community" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                    <h1 class="hidden font-sky text-6xl md:text-8xl mb-6 leading-none tracking-tighter">MADARA</h1>
+                    
+                    <p class="text-xl opacity-90 leading-relaxed italic text-gray-300 border-l-4 border-red-600 pl-6">
+                        "Je m'appelle Madara. Je dirige <strong>Madara Community</strong>, une structure dédiée à la musique. Ma méthode est radicale : transformer une audience passive en communauté active via des stratégies <strong class="text-white">100% Organiques</strong>."
+                    </p>
+                    <p class="text-sm text-gray-500 mt-4 pl-6 font-mono">
+                        > Narration. Formats propriétaires. Automatisation.
+                    </p>
+                </div>
+
+                <!-- STATS & CREDIBILITY -->
+                <div class="md:col-span-7 grid gap-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="glass p-8 text-center border-t-4 border-red-600">
+                            <div class="text-5xl font-sky text-white mb-2 counter" data-target="3.5">0</div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest opacity-60">Milliards de Vues (2025)</div>
+                        </div>
+                        <div class="glass p-8 text-center border-t-4 border-white">
+                            <div class="text-5xl font-sky text-white mb-2 counter" data-target="150">0</div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest opacity-60">Millions d'Abonnés</div>
+                        </div>
+                    </div>
+                    
+                    <!-- HALL OF FAME -->
+                    <div class="glass p-8 border border-white/10">
+                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 mb-6 text-center">Ils nous font confiance</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 items-center justify-items-center opacity-90">
+                            <div class="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10 w-full">
+                                <div class="text-[11px] font-black uppercase tracking-widest text-white">Soprano</div>
+                            </div>
+                            <div class="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10 w-full">
+                                <div class="text-[11px] font-black uppercase tracking-widest text-white">Lacrim</div>
+                            </div>
+                            <div class="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10 w-full">
+                                <div class="text-[11px] font-black uppercase tracking-widest text-white">Yamê</div>
+                            </div>
+                            <div class="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10 w-full">
+                                <div class="text-[11px] font-black uppercase tracking-widest text-white">Barbara Pravi</div>
+                            </div>
+                            <div class="text-center px-4 py-3 rounded-xl bg-white/5 border border-white/10 w-full">
+                                <div class="text-[11px] font-black uppercase tracking-widest text-white">Kore</div>
+                            </div>
+                        </div>
+                        <div class="mt-6 relative trust-carousel">
+                            <div class="trust-mask"></div>
+                            <div class="trust-track" aria-label="Artistes carrousel">
+                                <div class="trust-item"><img src="assets/SOPRANO_FREEDOM0937_SOPRANO_FREEDOM_FIFOU.jpg" alt="Soprano"></div>
+                                <div class="trust-item"><img src="assets/1200x680_sans-titre-8.jpg" alt="Lacrim"></div>
+                                <div class="trust-item"><img src="assets/yame-punchlines.jpg" alt="Yamê"></div>
+                                <div class="trust-item"><img src="assets/barbara-pravi.jpg" alt="Barbara Pravi"></div>
+                                <div class="trust-item"><img src="assets/Kore_photo_press.jpg" alt="Kore"></div>
+                                <div class="trust-item"><img src="assets/channels4_profile.jpg" alt="Artiste portrait"></div>
+                                <div class="trust-item"><img src="assets/a21408_dd59970e2e8e41db90734abf72b8fe42~mv2.jpg" alt="Artiste portrait"></div>
+                                <div class="trust-item"><img src="assets/SKYROCK_FM_LOGO.svg.png" alt="Logo Skyrock"></div>
+                                <div class="trust-item"><img src="assets/Universal_Music_France.png" alt="Universal Music"></div>
+                                <div class="trust-item"><img src="assets/TheOrchard-logo2.png" alt="The Orchard"></div>
+                                <div class="trust-item"><img src="assets/madara-logo.png" alt="Madara Community"></div>
+                                <div class="trust-item"><img src="assets/share.png" alt="Warner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAJORS MARQUEE -->
+            <div class="marquee-container glass p-4 rounded-xl bg-black/40 border-none">
+                <div class="marquee-content flex gap-12 items-center opacity-80">
+                    <img src="Universal_Music_France.png" class="h-10 md:h-12 object-contain filter hover:brightness-125 transition" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="hidden items-center gap-2 text-2xl font-black text-white/50"><i class="fa-solid fa-compact-disc"></i> UNIVERSAL</div>
+                    
+                    <img src="TheOrchard-logo2.png" class="h-8 md:h-10 object-contain filter hover:brightness-125 transition" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="hidden items-center gap-2 text-2xl font-black text-white/50"><i class="fa-solid fa-tree"></i> THE ORCHARD</div>
+                    
+                    <div class="flex items-center gap-2 text-2xl font-black text-white/50"><i class="fa-solid fa-music"></i> SONY MUSIC</div>
+                    <div class="flex items-center gap-2 text-2xl font-black text-white/50"><i class="fa-brands fa-itunes"></i> WARNER</div>
+                    <div class="flex items-center gap-2 text-2xl font-black text-white/50"><i class="fa-solid fa-circle-play"></i> BELIEVE</div>
+                    <div class="flex items-center gap-2 text-2xl font-black text-white/50"><i class="fa-solid fa-bolt"></i> BECAUSE</div>
+                    <!-- Loop -->
+                    <div class="flex items-center gap-2 text-2xl font-black text-white/50"><i class="fa-solid fa-compact-disc"></i> UNIVERSAL</div>
+                    <div class="flex items-center gap-2 text-2xl font-black text-white/50"><i class="fa-solid fa-music"></i> SONY MUSIC</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BAND: FORCE DE FRAPPE -->
+    <div class="red-band">
+        <h2 class="text-center font-black font-sky text-4xl md:text-7xl text-black tracking-tighter">FORCE DE FRAPPE ACTUELLE</h2>
+    </div>
+
+    <!-- 2. AUDIT DATA: LE GÉANT DORMANT -->
+    <section class="min-h-screen py-24 px-6 relative bg-black/50 border-b border-white/5">
+        <div class="max-w-7xl mx-auto w-full reveal">
+            <div class="text-center mb-16">
+                <p class="text-gray-400 max-w-2xl mx-auto font-mono text-xs">AUDIT DIGITAL 2026 // ASSETS SKYROCK</p>
+            </div>
+
+            <div class="grid md:grid-cols-12 gap-8">
+                <!-- Big Total Number -->
+                <div class="md:col-span-4 glass rounded-[2.5rem] p-10 flex flex-col justify-center items-center text-center relative overflow-hidden group border-t-8 border-red-600">
+                    <div class="absolute inset-0 bg-gradient-to-b from-red-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="text-[12px] uppercase font-black tracking-[0.3em] opacity-50 mb-4 bg-black/50 px-3 py-1 rounded-full">Reach Cumulé</div>
+                    <div class="text-7xl md:text-9xl font-sky text-white relative z-10 counter" id="totalCounter">0</div>
+                    <div class="text-3xl font-sky text-red-600 relative z-10">MILLIONS</div>
+                    <p class="text-[10px] text-gray-500 mt-6 max-w-xs mx-auto font-mono uppercase">Abonnés uniques dédupliqués estimés</p>
+                </div>
+
+                <!-- Platform Breakdown -->
+                <div class="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- YouTube -->
+                    <div class="glass p-6 rounded-2xl flex items-center justify-between hover:bg-white/5 transition-colors border-l-4 border-red-600">
+                        <div class="flex items-center gap-4">
+                            <i class="fa-brands fa-youtube text-3xl text-red-600"></i>
+                            <div>
+                                <div class="font-bold text-xl">YouTube</div>
+                                <div class="text-[10px] opacity-50 uppercase tracking-widest">Patrimoine</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-black counter" data-target="7.1">0</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase">Millions</div>
+                        </div>
+                    </div>
+
+                    <!-- TikTok -->
+                    <div class="glass p-6 rounded-2xl flex items-center justify-between hover:bg-white/5 transition-colors border-l-4 border-white">
+                        <div class="flex items-center gap-4">
+                            <i class="fa-brands fa-tiktok text-3xl"></i>
+                            <div>
+                                <div class="font-bold text-xl">TikTok</div>
+                                <div class="text-[10px] opacity-50 uppercase tracking-widest">Leader Viral</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-black counter" data-target="6.5">0</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase">Millions</div>
+                        </div>
+                    </div>
+
+                    <!-- Facebook -->
+                    <div class="glass p-6 rounded-2xl flex items-center justify-between hover:bg-white/5 transition-colors border-l-4 border-blue-600">
+                        <div class="flex items-center gap-4">
+                            <i class="fa-brands fa-facebook text-3xl text-blue-600"></i>
+                            <div>
+                                <div class="font-bold text-xl">Facebook</div>
+                                <div class="text-[10px] opacity-50 uppercase tracking-widest">Mass Market</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-black counter" data-target="6.1">0</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase">Millions</div>
+                        </div>
+                    </div>
+
+                    <!-- Instagram -->
+                    <div class="glass p-6 rounded-2xl flex items-center justify-between hover:bg-white/5 transition-colors border-l-4 border-pink-500">
+                        <div class="flex items-center gap-4">
+                            <i class="fa-brands fa-instagram text-3xl text-pink-500"></i>
+                            <div>
+                                <div class="font-bold text-xl">Instagram</div>
+                                <div class="text-[10px] opacity-50 uppercase tracking-widest">Lifestyle</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-black counter" data-target="1.6">0</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase">Millions</div>
+                        </div>
+                    </div>
+                    
+                    <!-- X & Snapchat -->
+                    <div class="sm:col-span-2 glass p-4 rounded-2xl flex justify-between items-center opacity-80">
+                        <div class="flex gap-8">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                <span class="font-bold text-sm">412k</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-brands fa-snapchat text-xl text-yellow-400"></i>
+                                <span class="font-bold text-sm">180k</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-widest opacity-50">Impact Culturel</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center text-[10px] text-gray-600 font-mono">
+                SOURCES : SOCIALBLADE 2025 • HYPEAUDITOR • TUBULAR LABS • MÉDIAMÉTRIE
+            </div>
+        </div>
+    </section>
+
+    <!-- BAND: PROBLÈME -->
+    <div class="red-band">
+        <h2 class="text-center font-black font-sky text-4xl md:text-7xl text-black tracking-tighter">LE DIAGNOSTIC</h2>
+    </div>
+
+    <!-- 3. PROBLÈME : LE HOLD-UP -->
+    <section class="min-h-screen py-24 px-6 relative border-b border-white/5 bg-[#030303]">
+        <div class="blob bg-purple-600 w-[600px] h-[600px] bottom-[-10%] right-[-10%] opacity-10"></div>
+        <div class="max-w-6xl mx-auto w-full reveal relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="font-sky text-5xl md:text-8xl mb-6">LE HOLD-UP <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-white">CULTUREL.</span></h2>
+            </div>
+
+            <!-- AUDIT DATA -->
+            <div class="grid md:grid-cols-2 gap-12 items-start mb-24">
+                <div class="space-y-8">
+                    <div class="glass p-8 border-l-8 border-red-600">
+                        <h3 class="text-2xl font-bold mb-2">1. L'Attention a migré</h3>
+                        <p class="text-gray-400 leading-relaxed">Les 15-24 ans passent <strong>4h/jour</strong> sur mobile. La radio FM est devenue un bruit de fond. L'intensité de l'engagement est désormais visuelle et interactive.</p>
+                    </div>
+                    <div class="glass p-8 border-l-8 border-twitch relative overflow-hidden">
+                        <div class="absolute inset-0 bg-purple-600/10 animate-pulse"></div>
+                        <h3 class="text-2xl font-bold mb-2 relative z-10">2. L'Anomalie Twitch</h3>
+                        <p class="text-gray-400 relative z-10">
+                            C'est le point critique. Skyrock a <strong class="text-white">0% de Part de Marché</strong> sur la plateforme n°1 des jeunes le soir.
+                            Pendant ce temps, des indépendants cumulent des millions d'heures vues sur VOTRE créneau.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Visuel Data Comparison -->
+                <div class="glass p-10 flex flex-col justify-center border border-red-500/20 bg-black/40">
+                    <div class="flex items-center justify-between mb-8">
+                        <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest animate-pulse">● Live Analysis 23h00</span>
+                        <i class="fa-brands fa-twitch text-2xl text-white"></i>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white/5 p-6 rounded-2xl flex justify-between items-center border-l-4 border-green-500">
+                            <div>
+                                <span class="block font-bold text-lg">Streamers Indés</span>
+                                <span class="text-[10px] text-gray-500 uppercase">Just Chatting / Urbain</span>
+                            </div>
+                            <span class="text-green-400 font-mono font-bold text-xl">125k Viewers</span>
+                        </div>
+                        <div class="bg-white/5 p-6 rounded-2xl flex justify-between items-center opacity-50 border-l-4 border-gray-600 grayscale">
+                            <div>
+                                <span class="block font-bold text-lg">Skyrock</span>
+                                <span class="text-[10px] text-gray-500 uppercase">Absent</span>
+                            </div>
+                            <span class="text-red-400 font-mono font-bold text-xl">---</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center text-xs font-bold text-gray-400 bg-red-500/10 p-4 rounded-xl border border-red-500/10">
+                        "La nature a horreur du vide. Les autres ont pris votre place."
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BAND: SOLUTION -->
+    <div class="red-band">
+        <h2 class="text-center font-black font-sky text-4xl md:text-7xl text-black tracking-tighter">LA SOLUTION</h2>
+    </div>
+
+    <!-- 4. SOLUTION : HUB H24 & ASSAUT GLOBAL -->
+    <section class="min-h-screen py-24 px-6 bg-[#080808] border-t border-white/5 relative">
+        <div class="max-w-7xl mx-auto w-full reveal">
+            <div class="text-center mb-24">
+                <span class="inline-block py-2 px-6 rounded-full border border-green-500 text-green-500 text-xs font-black uppercase tracking-[0.2em] mb-6">Le Plan Madara</span>
+                <h2 class="font-sky text-5xl md:text-8xl leading-none">OBJECTIF : ASSAUT <br><span class="text-red-500">GLOBAL 24/7.</span></h2>
+                <p class="text-xl text-gray-400 mt-6 max-w-3xl mx-auto">
+                    Il ne s'agit pas juste de "lancer une chaîne". Il s'agit d'une <strong>OCCUPATION TOTALE</strong> du terrain. 
+                    Saturation de l'algorithme jour, nuit, week-end. Aucun répit pour la concurrence.
+                </p>
+            </div>
+
+            <div class="space-y-8">
+                
+                <!-- B1: La Fédération -->
+                <div class="glass p-10 flex flex-col md:flex-row items-center gap-10 group hover:bg-white/5 border-l-8 border-blue-500 transition-all hover:translate-x-2">
+                    <div class="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-5xl shrink-0">
+                        <i class="fa-solid fa-handshake-simple"></i>
+                    </div>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="font-sky text-4xl mb-3 text-white">LA FÉDÉRATION</h3>
+                        <p class="text-gray-400 text-lg">Ne combattez pas les streamers, <strong class="text-blue-400">armez-les</strong>. Skyrock devient la plateforme logistique et éditoriale de la scène indépendante.</p>
+                    </div>
+                    <div class="md:w-1/3 text-xs text-gray-400 font-mono space-y-3 bg-black/40 p-6 rounded-2xl border border-white/5">
+                        <div class="flex gap-3 items-center"><div class="w-2 h-2 bg-blue-500 rounded-full"></div> Hébergement Studios 4K</div>
+                        <div class="flex gap-3 items-center"><div class="w-2 h-2 bg-blue-500 rounded-full"></div> Accès aux Stars (Ninho, Gazo)</div>
+                        <div class="flex gap-3 items-center"><div class="w-2 h-2 bg-blue-500 rounded-full"></div> Cross-Promotion Massive</div>
+                    </div>
+                </div>
+
+                <!-- B2: Le Red Carpet -->
+                <div class="glass p-10 flex flex-col md:flex-row items-center gap-10 group hover:bg-white/5 border-l-8 border-red-500 transition-all hover:translate-x-2">
+                    <div class="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 text-5xl shrink-0">
+                        <i class="fa-solid fa-magnet"></i>
+                    </div>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="font-sky text-4xl mb-3 text-white">LE RED CARPET</h3>
+                        <p class="text-gray-400 text-lg">Le Hack Algorithmique Ultime. Quand les autres dorment, nous sommes <strong class="text-red-500">"Always On"</strong>.</p>
+                    </div>
+                    <div class="md:w-1/3 text-xs text-gray-400 font-mono space-y-3 bg-black/40 p-6 rounded-2xl border border-white/5">
+                        <div class="flex gap-3 items-center"><div class="w-2 h-2 bg-red-500 rounded-full"></div> Captation audience orpheline 1h du mat</div>
+                        <div class="flex gap-3 items-center"><div class="w-2 h-2 bg-red-500 rounded-full"></div> Reco Homepage Twitch 24/7</div>
+                    </div>
+                </div>
+
+                <!-- B3: Lieu de Vie -->
+                <div class="glass p-10 flex flex-col md:flex-row items-center gap-10 group hover:bg-white/5 border-l-8 border-purple-500 transition-all hover:translate-x-2">
+                    <div class="w-24 h-24 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 text-5xl shrink-0">
+                        <i class="fa-solid fa-earth-americas"></i>
+                    </div>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="font-sky text-4xl mb-3 text-white">LIEU DE VIE TOTAL</h3>
+                        <p class="text-gray-400 text-lg">Un écosystème urbain complet. Bien au-delà du Rap.</p>
+                    </div>
+                    <div class="md:w-1/3 flex flex-wrap gap-2 justify-center md:justify-start content-center">
+                        <span class="px-3 py-2 bg-white/10 rounded-lg text-[10px] uppercase font-bold text-gray-300">Cuisine</span>
+                        <span class="px-3 py-2 bg-white/10 rounded-lg text-[10px] uppercase font-bold text-gray-300">MMA/Sport</span>
+                        <span class="px-3 py-2 bg-white/10 rounded-lg text-[10px] uppercase font-bold text-gray-300">Gaming</span>
+                        <span class="px-3 py-2 bg-white/10 rounded-lg text-[10px] uppercase font-bold text-gray-300">Sneakers</span>
+                        <span class="px-3 py-2 bg-white/10 rounded-lg text-[10px] uppercase font-bold text-gray-300">Humour</span>
+                        <span class="px-3 py-2 bg-white/10 rounded-lg text-[10px] uppercase font-bold text-gray-300">Tech</span>
+                        <span class="px-3 py-2 bg-white/10 rounded-lg text-[10px] uppercase font-bold text-gray-300">Horreur</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. MADARA AI LAB -->
+    <section class="min-h-screen py-24 px-6 border-t border-white/5 bg-[#030303] relative">
+        <div class="max-w-6xl mx-auto w-full reveal relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_#00ff88]"></div>
+                        <span class="text-green-500 font-mono text-sm block tracking-widest font-bold">SYSTEM_ONLINE // REALTIME_AI</span>
+                    </div>
+                    <h2 class="font-sky text-5xl md:text-7xl">MADARA <span class="text-white">LAB</span></h2>
+                    <p class="text-gray-400 mt-4 font-mono text-sm max-w-xl border-l-2 border-green-500 pl-4">
+                        Décrivez une vibe, l'IA Madara génère le conducteur parfait en temps réel pour nourrir l'antenne H24.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Terminal Window -->
+            <div class="terminal-window rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_0_100px_rgba(0,255,136,0.1)] bg-[#0a0a0a] relative">
+                <div class="scan-line"></div>
+                <div class="bg-[#101010] p-5 border-b border-white/10 flex flex-wrap gap-3 items-center text-xs font-mono text-gray-400">
+                    <div class="flex gap-2 mr-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white uppercase tracking-[0.2em]">madara_brain_v4</span>
+                    <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-green-400 uppercase tracking-[0.2em]">MadaraBot IA</span>
+                    <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-amber-300 uppercase tracking-[0.15em]">Latence ~0.7s</span>
+                    <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 uppercase tracking-[0.15em]">Sécurité : On</span>
+                </div>
+                
+                <div class="p-8 md:p-10 font-mono text-sm relative z-10 bg-gradient-to-br from-white/5 via-transparent to-white/5">
+                    <div class="grid md:grid-cols-12 gap-8 items-start">
+                        <div class="md:col-span-5 space-y-4">
+                            <div class="border border-white/10 rounded-2xl bg-black/50 p-5 shadow-[0_0_30px_rgba(0,0,0,0.45)]">
+                                <label class="text-[10px] text-green-400 font-bold uppercase mb-2 block tracking-[0.2em]">>> Prompt</label>
+                                <textarea id="ai-input" class="w-full bg-black/70 border border-white/10 p-4 text-white focus:border-green-500 focus:shadow-[0_0_25px_rgba(0,255,136,0.2)] outline-none rounded-xl transition-all placeholder-gray-600 text-base font-semibold min-h-[120px]" placeholder="Ex: Une émission de cuisine dans une cité avec Gazo...">Une émission de survie urbaine dans Paris la nuit</textarea>
+                                <div class="mt-3 flex flex-wrap gap-2 text-[10px] uppercase font-bold">
+                                    <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 cursor-pointer hover:border-green-400 hover:text-white" onclick="document.getElementById('ai-input').value='Battle freestyle rooftop Paris + sunrise + guests Soso Maness & Aya';">Freestyle Rooftop</span>
+                                    <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 cursor-pointer hover:border-green-400 hover:text-white" onclick="document.getElementById('ai-input').value='Talk show nuit, 2h du mat, invités streamers + rappeurs, hotline auditeurs';">Night Talk</span>
+                                    <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 cursor-pointer hover:border-green-400 hover:text-white" onclick="document.getElementById('ai-input').value='Défi cuisine quartier + live DJ set + tasting jurys habitants';">Cuisine x DJ</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button onclick="generateRealConcept()" id="genBtn" class="flex-1 bg-green-500 hover:bg-green-400 text-black font-black py-4 rounded-xl uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-[0_0_25px_rgba(0,255,136,0.35)]">
+                                    <i class="fa-solid fa-bolt"></i> Lancer
+                                </button>
+                                <div class="px-3 py-3 rounded-xl border border-white/10 bg-white/5 text-[10px] uppercase font-bold text-gray-300">
+                                    <div>Mode</div>
+                                    <div class="text-white">Concept Live</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-7">
+                            <div class="border border-white/10 bg-black/60 rounded-2xl p-6 md:p-7 min-h-[320px] text-gray-200 space-y-4 overflow-y-auto font-mono text-xs md:text-sm relative shadow-inner">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-gray-400">
+                                        <span class="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_10px_rgba(0,255,136,0.6)]"></span>
+                                        Résultats
+                                    </div>
+                                    <span class="text-[10px] text-gray-500 uppercase">Live feed</span>
+                                </div>
+                                <div id="ai-output" class="space-y-4 relative">
+                                    <div class="h-full flex flex-col items-center justify-center opacity-30 space-y-4 pt-8 pointer-events-none" id="ai-placeholder">
+                                        <i class="fa-solid fa-microchip text-6xl animate-float"></i>
+                                        <p class="tracking-[0.4em] font-bold text-center leading-relaxed">EN ATTENTE<br>DE PROMPT</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BAND: RÉSULTATS -->
+    <div class="red-band">
+        <h2 class="text-center font-black font-sky text-4xl md:text-7xl text-black tracking-tighter">LES RÉSULTATS</h2>
+    </div>
+
+    <!-- 6. RÉSULTATS : DOMINATION & BUSINESS -->
+    <section class="min-h-screen py-24 px-6 bg-[#020202] border-t border-white/5">
+        <div class="max-w-7xl mx-auto w-full reveal">
+            
+            <div class="text-center mb-24">
+                <h2 class="font-sky text-5xl md:text-8xl mb-6">PLUS QU'UNE <span class="text-sky">VICTOIRE.</span></h2>
+            </div>
+
+            <!-- BUSINESS MODEL -->
+            <div class="grid md:grid-cols-3 gap-6 mb-24">
+                <div class="glass p-8 text-center group hover:bg-white/5">
+                    <div class="w-16 h-16 rounded-full bg-yellow-500/20 mx-auto flex items-center justify-center text-yellow-500 text-3xl mb-6"><i class="fa-solid fa-star"></i></div>
+                    <h3 class="font-bold text-xl mb-4">SPONSORING NATIF</h3>
+                    <p class="text-sm text-gray-400">Intégration de marques au cœur des formats. Fini les coupures pubs, place aux placements produits.</p>
+                </div>
+                <div class="glass p-8 text-center group hover:bg-white/5">
+                    <div class="w-16 h-16 rounded-full bg-purple-500/20 mx-auto flex items-center justify-center text-purple-500 text-3xl mb-6"><i class="fa-solid fa-users-viewfinder"></i></div>
+                    <h3 class="font-bold text-xl mb-4">SUBS & BITS</h3>
+                    <p class="text-sm text-gray-400">Revenu direct B2C. Les utilisateurs paient un abonnement mensuel pour appartenir à la communauté Skyrock H24.</p>
+                </div>
+                <div class="glass p-8 text-center group hover:bg-white/5">
+                    <div class="w-16 h-16 rounded-full bg-blue-500/20 mx-auto flex items-center justify-center text-blue-500 text-3xl mb-6"><i class="fa-solid fa-shirt"></i></div>
+                    <h3 class="font-bold text-xl mb-4">MERCHANDISING</h3>
+                    <p class="text-sm text-gray-400">Drops exclusifs limités lancés en direct pendant les émissions phares. Création de rareté et d'urgence d'achat.</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-16 items-start">
+                <!-- Narrative -->
+                <div class="space-y-10">
+                    <div class="glass p-10 rounded-[3rem] border-l-8 border-red-600 bg-gradient-to-br from-red-900/10 to-transparent">
+                        <h3 class="font-bold text-3xl mb-6 text-white font-sky">L'ACCOMPLISSEMENT</h3>
+                        <p class="text-gray-300 text-lg leading-relaxed mb-6">
+                            L'objectif dépasse la simple audience. Il s'agit de restaurer <strong>la souveraineté culturelle</strong> de Skyrock. 
+                            Demain, avec le Hub H24, nous recréons <strong>l'Agora unique</strong>.
+                        </p>
+                    </div>
+
+                    <!-- ROADMAP -->
+                    <div class="space-y-4">
+                        <div class="glass p-4 rounded-xl border-l-4 border-gray-500 flex justify-between items-center">
+                            <span class="font-bold">Q1 2026</span>
+                            <span class="text-xs uppercase text-gray-500">Lancement Studio H24</span>
+                        </div>
+                        <div class="glass p-4 rounded-xl border-l-4 border-blue-500 flex justify-between items-center">
+                            <span class="font-bold">Q2 2026</span>
+                            <span class="text-xs uppercase text-blue-500">Recrutement Fédération</span>
+                        </div>
+                        <div class="glass p-4 rounded-xl border-l-4 border-purple-500 flex justify-between items-center">
+                            <span class="font-bold">Q3 2026</span>
+                            <span class="text-xs uppercase text-purple-500">10k Subs Actifs</span>
+                        </div>
+                        <div class="glass p-4 rounded-xl border-l-4 border-red-500 flex justify-between items-center">
+                            <span class="font-bold">Q4 2026</span>
+                            <span class="text-xs uppercase text-red-500">#1 Twitch France</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics Chart -->
+                <div class="glass p-10 rounded-[3rem] h-full flex flex-col justify-between">
+                    <div class="flex justify-between items-end mb-8">
+                        <div>
+                            <h3 class="font-black text-3xl">DOMINATION</h3>
+                            <p class="text-xs text-gray-500 uppercase tracking-[0.2em]">Projection Abonnés Twitch</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sky font-black text-5xl drop-shadow-[0_0_20px_rgba(237,28,36,0.5)]">~65%</span>
+                            <div class="text-[10px] opacity-60 uppercase font-bold mt-1">Part de Marché</div>
+                        </div>
+                    </div>
+                    <div class="relative w-full h-[300px]">
+                        <canvas id="chartGrowth"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-32 bg-black text-center border-t border-white/10 relative overflow-hidden">
+        <div class="blob bg-white w-[800px] h-[300px] bottom-[-150px] left-1/2 transform -translate-x-1/2 opacity-5 blur-[100px]"></div>
+        
+        <div class="max-w-4xl mx-auto px-6 mb-20 reveal active relative z-10">
+            <p class="font-sky text-3xl md:text-5xl text-gray-600 leading-tight mb-8 italic">
+                "Au fond, il n'y a qu'un seul objectif : <br>
+                <span class="text-white">Redevenir mon Skyrock à moi.</span> <br>
+                Celui avec lequel j'ai grandi."
+            </p>
+            <div class="w-24 h-1 bg-red-600 mx-auto mb-8"></div>
+            <p class="text-xs font-mono text-gray-500 uppercase tracking-[0.4em]">Merci pour votre lecture.</p>
+        </div>
+
+        <div class="flex items-center justify_center gap-4 mb-12 opacity-40 grayscale hover:grayscale-0 transition-all duration-700 hover:opacity-100 relative z-10">
+            <img src="assets/madara-logo.png" class="h-60 object-contain" alt="Madara Community" onerror="this.style.display='none'">
+            <span class="text-2xl font-black text-red-500">x</span>
+            <img src="assets/SKYROCK_FM_LOGO.svg.png" class="h-10 object-contain" alt="Skyrock" onerror="this.style.display='none'">
+        </div>
+        <p class="text-[10px] font-mono text-gray-800 uppercase tracking-widest relative z-10">Document Confidentiel • Direction Générale • Paris 2026</p>
+    </footer>
+
+    <script>
+        // ANIMATIONS & SCROLL BAR
+        window.onscroll = function() {
+            var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            var scrolled = (winScroll / height) * 100;
+            document.getElementById("progress-bar").style.width = scrolled + "%";
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    entry.target.querySelectorAll('.counter').forEach(c => animateValue(c, 0, parseFloat(c.getAttribute('data-target')||'22'), 2500));
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = start + (end - start) * (1 - Math.pow(2, -10 * progress));
+                obj.innerHTML = end > 100 ? Math.floor(current) : current.toFixed(1);
+                if (progress < 1) window.requestAnimationFrame(step);
+                else obj.innerHTML = end > 100 ? end : end.toFixed(1);
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        document.getElementById('totalCounter')?.setAttribute('data-target', 21.9);
+
+        // AI LOGIC
+        const apiEndpoint = "https://wispy-heart-8damadaraxsherko.madara-entreprise.travailleurs.dev/api/generate";
+        async function generateRealConcept() {
+            const input = document.getElementById('ai-input').value;
+            const output = document.getElementById('ai-output');
+            const placeholder = document.getElementById('ai-placeholder');
+            const btn = document.getElementById('genBtn');
+            if(!input) return;
+
+            if(placeholder) placeholder.style.display = 'none';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CONNECTING...';
+            output.innerHTML = `<div class="font-mono text-green-500 text-xs space-y-2 p-4"><div>> ANALYZING INPUT...</div><div class="animate-pulse">> GENERATING STRATEGY...</div></div>`;
+
+            const systemPrompt = `Tu es le Directeur des Programmes Visionnaire de Skyrock x Twitch.
+            Ta mission : Créer un concept d'émission TV/Twitch ultra-détaillé et viral basé sur la demande de l'utilisateur.
+            
+            Format de réponse attendu (HTML brut sans markdown) :
+            <div class="animate-reveal space-y-8">
+                <div class="border-l-8 border-green-500 pl-6">
+                    <h3 class="font-black text-3xl text-white mb-2 uppercase tracking-tighter">TITRE PUNCHY</h3>
+                    <div class="flex gap-3 mt-3">
+                        <span class="text-xs bg-white/10 px-3 py-1 rounded-full uppercase font-bold text-gray-400 border border-white/5">Genre: [GENRE]</span>
+                        <span class="text-xs bg-white/10 px-3 py-1 rounded-full uppercase font-bold text-gray-400 border border-white/5">Durée: [DUREE]</span>
+                        <span class="text-xs bg-red-600 text-white px-3 py-1 rounded-full uppercase font-bold shadow-[0_0_15px_rgba(220,38,38,0.5)]">Viral: Extreme</span>
+                    </div>
+                </div>
+                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-inner">
+                    <div class="text-xs uppercase font-black text-gray-500 mb-6 border-b border-white/10 pb-3 flex justify-between"><span>CONDUCTEUR (TIMELINE)</span> <span class="text-green-500">LIVE FEED</span></div>
+                    <ul class="space-y-6 font-mono text-xs text-gray-300">
+                        <li class="flex gap-6 items-start"><span class="text-yellow-400 font-bold w-16 text-right pt-1">[Heure]</span> <div><strong class="text-white text-lg block mb-1">PHASE 1</strong>[Description détaillée action]</div></li>
+                        <li class="flex gap-6 items-start"><span class="text-yellow-400 font-bold w-16 text-right pt-1">[Heure]</span> <div><strong class="text-white text-lg block mb-1">PHASE 2</strong>[Description détaillée action]</div></li>
+                        <li class="flex gap-6 items-start"><span class="text-yellow-400 font-bold w-16 text-right pt-1">[Heure]</span> <div><strong class="text-white text-lg block mb-1">PHASE 3</strong>[Description détaillée action]</div></li>
+                    </ul>
+                </div>
+                <div class="flex items-center gap-4 text-green-400 text-sm font-bold bg-green-900/20 p-4 rounded-xl border border-green-500/30">
+                    <i class="fa-solid fa-chart-line text-2xl"></i> 
+                    <div>
+                        <span class="block text-white uppercase text-[10px] tracking-widest opacity-50">Analyse IA</span>
+                        Potentiel Viral: [POURQUOI C'EST VIRAL]
+                    </div>
+                </div>
+            </div>
+
+            Ton : Urbain, Professionnel, Direct, Excitant. Utilise des références culturelles actuelles (Rappeurs, Streamers, Lieux).
+            Demande utilisateur : "${input}"`;
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: systemPrompt })
+                });
+                const data = await response.json();
+                const text = data?.text;
+                if(!response.ok) throw new Error(data?.error || response.statusText);
+                if(!text) throw new Error('Réponse IA vide');
+                output.innerHTML = text.replace(/```html/g, '').replace(/```/g, '');
+            } catch (e) {
+                output.innerHTML = `<div class="text-red-500 font-mono p-4">ERROR: CONNECTION LOST<br><span class="text-xs text-gray-400">${e.message||e}</span></div>`;
+                if(placeholder) placeholder.style.display = '';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'GENERATE';
+            }
+        }
+
+        // CHARTS
+        window.addEventListener('load', function() {
+            const ctx = document.getElementById('chartGrowth');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Start', 'M3', 'M6', 'M9', 'M12', 'M18'],
+                        datasets: [{
+                            label: 'Abonnés',
+                            data: [0, 80000, 180000, 300000, 500000, 850000],
+                            borderColor: '#ed1c24',
+                            borderWidth: 4,
+                            backgroundColor: (context) => {
+                                const ctx = context.chart.ctx;
+                                const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                                gradient.addColorStop(0, 'rgba(237, 28, 36, 0.5)');
+                                gradient.addColorStop(1, 'rgba(237, 28, 36, 0)');
+                                return gradient;
+                            },
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)' } },
+                            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
