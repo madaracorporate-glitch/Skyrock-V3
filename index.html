@@ -1214,7 +1214,7 @@
             let cursor = null;
             let aggregated = [];
             let page = 0;
-            const maxPages = 5; // garder la couverture large, mais avec timeouts courts
+            const maxPages = 3; // compromis vitesse/couverture
 
             while (page < maxPages) {
               const url = new URL(`${WORKER_BASE}/helix/streams`);
@@ -1270,7 +1270,7 @@
               setLoading(true);
               setLoadingProgress(10);
 
-              const topGamesResponse = await fetch(`${WORKER_BASE}/helix/games/top?first=30`, { cache: 'no-store' });
+              const topGamesResponse = await fetch(`${WORKER_BASE}/helix/games/top?first=18`, { cache: 'no-store' });
               if (!topGamesResponse.ok) throw new Error(`Twitch top games: ${topGamesResponse.status}`);
               const topGamesData = await topGamesResponse.json();
               const targetGames = Array.isArray(topGamesData?.data) ? topGamesData.data : [];
