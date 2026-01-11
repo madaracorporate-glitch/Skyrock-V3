@@ -1214,7 +1214,7 @@
             let cursor = null;
             let aggregated = [];
             let page = 0;
-            const maxPages = 5; // 5 x 100 = 500 max pour limiter la charge
+            const maxPages = 2; // 2 x 100 = 200 max pour accélérer
 
             while (page < maxPages) {
               const url = new URL(`${WORKER_BASE}/helix/streams`);
@@ -1222,7 +1222,10 @@
               url.searchParams.set('first', '100');
               if (cursor) url.searchParams.set('after', cursor);
 
-              const res = await fetch(url.toString(), { cache: 'no-store' });
+              // Timeout 7s pour éviter les chargements longs
+              const controller = new AbortController();
+              const timer = setTimeout(() => controller.abort(), 7000);
+              const res = await fetch(url.toString(), { cache: 'no-store', signal: controller.signal }).finally(() => clearTimeout(timer));
               if (!res.ok) throw new Error(`Twitch streams: ${res.status}`);
 
               const data = await res.json();
@@ -1262,7 +1265,7 @@
               setLoading(true);
               setLoadingProgress(10);
 
-              const topGamesResponse = await fetch(`${WORKER_BASE}/helix/games/top?first=24`, { cache: 'no-store' });
+              const topGamesResponse = await fetch(`${WORKER_BASE}/helix/games/top?first=12`, { cache: 'no-store' });
               if (!topGamesResponse.ok) throw new Error(`Twitch top games: ${topGamesResponse.status}`);
               const topGamesData = await topGamesResponse.json();
               const targetGames = Array.isArray(topGamesData?.data) ? topGamesData.data : [];
@@ -1682,4 +1685,3 @@
     </script>
 </body>
 </html>
-
