@@ -1270,7 +1270,7 @@
               setLoading(true);
               setLoadingProgress(10);
 
-              const topGamesResponse = await fetch(`${WORKER_BASE}/helix/games/top?first=12`, { cache: 'no-store' });
+              const topGamesResponse = await fetch(`${WORKER_BASE}/helix/games/top?first=30`, { cache: 'no-store' });
               if (!topGamesResponse.ok) throw new Error(`Twitch top games: ${topGamesResponse.status}`);
               const topGamesData = await topGamesResponse.json();
               const targetGames = Array.isArray(topGamesData?.data) ? topGamesData.data : [];
