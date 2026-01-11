@@ -243,6 +243,454 @@
         </div>
     </section>
 
+    <!-- React Live Player/Chat (Skyrock House) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const SkyrockStream = () => {
+          const [messages, setMessages] = useState([
+            { id: 1, user: 'Skyrock_Officiel', color: '#ff5200', text: 'Bienvenue sur le live ! 🔥 Ce soir on reçoit du très lourd !', isMod: true },
+            { id: 2, user: 'JulieDu75', color: '#a855f7', text: "Wesh l'équipe !", isMod: false },
+          ]);
+          const [inputValue, setInputValue] = useState('');
+          const [viewerCount, setViewerCount] = useState(12450);
+          const [currentTrack, setCurrentTrack] = useState("Freestyle Inédit - Exclusivité");
+          const [hostMessage, setHostMessage] = useState("Fred : Lâchez des flammes dans le chat si vous êtes chaud ! 🔥");
+          const [messageHistory, setMessageHistory] = useState([]);
+          const chatEndRef = useRef(null);
+          const chatContainerRef = useRef(null);
+
+          const chatData = {
+            users: [
+                { name: 'Kevin_93', color: '#3b82f6', type: 'fan' },
+                { name: 'Haterz_Pro', color: '#ef4444', type: 'hater' },
+                { name: 'Sarah_Love', color: '#ec4899', type: 'groupie' },
+                { name: 'Troll_Des_Cavernes', color: '#22c55e', type: 'troll' },
+                { name: 'Momo_La_Street', color: '#f59e0b', type: 'regular' },
+                { name: 'Rap_Addict', color: '#8b5cf6', type: 'regular' },
+                { name: '94_En_Force', color: '#06b6d4', type: 'regular' },
+                { name: 'Léa_D', color: '#f43f5e', type: 'regular' },
+                { name: 'Mehdi_Marseille', color: '#10b981', type: 'fan' },
+                { name: 'Lucas_Stream', color: '#6366f1', type: 'regular' }
+            ],
+            generalPhrases: [
+                "Le son est lourd 🔥", "C'est quoi le titre ?", "Validé fort", "Skyrock premier sur le rap", 
+                "Fred t'es le boss", "Marseille en force", "93 l'équipe", "Qui est là depuis 20h ?",
+                "L'album va être incroyable", "Dinguerie ce couplet", "Masterclass", "C'est mou un peu non ?",
+                "Montez le son !!", "Bordeaux présent", "Lyon rpz", "C'est quand le freestyle ?",
+                "Il a dit quoi ?", "Mdrrr", "Ptdrrr jsuis mort", "Aie aie aie la prod",
+                "L'instru est folle", "Big up Fred", "Wesh les gens", "Ça bug chez vous ?", "Incroyable"
+            ],
+            replies: [
+                "Grave !", "N'importe quoi toi", "Tu racontes quoi ?", "Mdrrr j'avoue", 
+                "Pas d'accord avec toi", "Tellement vrai", "Réel", "T'as trop raison", "Mais non ??",
+                "Exactement", "Chut stp", "Bien vu frérot", "C'est faux", "Arrête de forcer"
+            ],
+            questions: [
+                "C'est qui l'invité demain ?", "On peut appeler le standard ?", 
+                "C'est du live ou rediff ?", "Qui a le snap de Fred ?", "Le titre svp ?", "Vous préférez l'ancien album ?"
+            ]
+          };
+
+          const addMessage = (msg) => {
+            setMessages((prev) => {
+              const next = [...prev, msg];
+              if (next.length > 50) next.shift();
+              return next;
+            });
+          };
+
+          // Chat vivant
+          useEffectTT(() => {
+            const interval = setInterval(() => {
+              const randomUser = chatData.users[Math.floor(Math.random() * chatData.users.length)];
+              let messageText = "";
+              const messageTypeRoll = Math.random();
+              const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+
+              if (lastMessage && !lastMessage.isMod && messageTypeRoll < 0.3) {
+                  const replyPhrase = chatData.replies[Math.floor(Math.random() * chatData.replies.length)];
+                  messageText = `@${lastMessage.user} ${replyPhrase}`;
+              } else if (messageTypeRoll < 0.4) {
+                  messageText = chatData.questions[Math.floor(Math.random() * chatData.questions.length)];
+              } else {
+                  messageText = chatData.generalPhrases[Math.floor(Math.random() * chatData.generalPhrases.length)];
+              }
+
+              let attempts = 0;
+              while (messageHistory.includes(messageText) && attempts < 5) {
+                  messageText = chatData.generalPhrases[Math.floor(Math.random() * chatData.generalPhrases.length)];
+                  attempts++;
+              }
+
+              const newMessage = {
+                id: Date.now(),
+                user: randomUser.name,
+                color: randomUser.color,
+                text: messageText,
+                isMod: false,
+                type: randomUser.type
+              };
+
+              addMessage(newMessage);
+
+              setMessageHistory(prev => {
+                  const newHistory = [...prev, messageText];
+                  if (newHistory.length > 20) newHistory.shift();
+                  return newHistory;
+              });
+
+              setViewerCount(prev => prev + Math.floor(Math.random() * 30) - 15);
+              
+            }, 2000 + Math.random() * 1500);
+
+            return () => clearInterval(interval);
+          }, [messages, messageHistory]);
+
+          // Host events
+          useEffectTT(() => {
+            const hostEvents = [
+              "Fred : On attend les 15k viewers pour lancer l'exclu !",
+              "Fred : Dédicace à tout le 93 qui nous écoute !",
+              "Fred : N'oubliez pas de vous abonner à la chaîne la mif !",
+              "Fred : Il arrive dans 2 minutes dans le studio...",
+              "Fred : 🔥🔥🔥 C'est le feu ce soir !",
+              "Fred : Appelez le standard si vous voulez passer à l'antenne !"
+            ];
+
+            const hostInterval = setInterval(() => {
+              const event = hostEvents[Math.floor(Math.random() * hostEvents.length)];
+              setHostMessage(event);
+              if(Math.random() > 0.8) {
+                addMessage({
+                    id: Date.now(),
+                    user: 'Fred_Skyrock',
+                    color: '#ff5200',
+                    text: event.replace("Fred : ", ""),
+                    isMod: true,
+                    isHost: true
+                });
+              }
+            }, 12000);
+
+            return () => clearInterval(hostInterval);
+          }, []);
+
+          // Scroll bottom (only if user est déjà en bas)
+          useEffectTT(() => {
+            const container = chatContainerRef.current;
+            if (!container) return;
+            const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+            if (distanceFromBottom < 120) {
+              container.scrollTop = container.scrollHeight;
+            }
+          }, [messages]);
+
+          const handleSendMessage = (e) => {
+            e.preventDefault();
+            if (!inputValue.trim()) return;
+
+            addMessage({
+              id: Date.now(),
+              user: 'Toi (Invité)',
+              color: '#ffffff',
+              text: inputValue,
+              isMod: false,
+              isMe: true
+            });
+
+            if (inputValue.toLowerCase().includes('dédicace')) {
+              setTimeout(() => {
+                setHostMessage("Fred : J'ai vu passer une demande de dédicace, big up à toi !");
+              }, 2000);
+            }
+            
+            if (inputValue.includes('?')) {
+                setTimeout(() => {
+                     const randomBot = chatData.users[Math.floor(Math.random() * chatData.users.length)];
+                     const botReply = ["Je sais pas gros", "Bonne question", "Demande à Fred", "Attends un peu"][Math.floor(Math.random() * 4)];
+                     addMessage({
+                        id: Date.now() + 10,
+                        user: randomBot.name,
+                        color: randomBot.color,
+                        text: `@Toi (Invité) ${botReply}`,
+                        isMod: false
+                     });
+                }, 1500);
+            }
+
+            setInputValue('');
+          };
+
+          return (
+            <div className="flex items-center justify-center w-full bg-black overflow-hidden">
+              <div className="w-full max-w-[1600px] aspect-video bg-[#0e0e10] flex text-white font-sans overflow-hidden shadow-2xl border border-[#2d2d30] relative">
+                {/* Colonne gauche */}
+                <div className="flex-1 flex flex-col relative bg-black">
+                    <div className="h-12 bg-[#18181b] border-b border-[#2d2d30] flex items-center justify-between px-4 z-20 shadow-md">
+                        <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 bg-[#ff5200] rounded text-black font-extrabold flex items-center justify-center italic text-sm transform -skew-x-12">S</div>
+                            <div className="flex flex-col">
+                                <h1 className="font-bold text-xs leading-tight flex items-center gap-2">
+                                    Skyrock FM
+                                    <span className="bg-red-600 text-[9px] px-1 py-0.5 rounded font-bold uppercase tracking-wider animate-pulse text-white">Live</span>
+                                </h1>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4 text-gray-400">
+                            <span title="Prime">👑</span>
+                            <div className="w-7 h-7 bg-gray-700 rounded-full overflow-hidden">
+                                <img src="assets/SKYROCK_FM_LOGO.svg.png" alt="Avatar" className="w-full h-full object-cover opacity-70" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 bg-black relative flex items-center justify-center overflow-hidden group">
+                        <div className="w-full h-full relative">
+                            <img 
+                                src="assets/a.png" 
+                                alt="Visuel Skyrock Live" 
+                                className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+                        </div>
+
+                        <div className="absolute bottom-0 left-0 right-0 h-10 bg-[#ff5200] flex items-center overflow-hidden z-20 border-t border-white">
+                            <div className="whitespace-nowrap animate-marquee flex items-center gap-8 text-black font-bold text-base uppercase tracking-wide">
+                                <span>/// Envoyer vos dédicaces sur le Chat ///</span>
+                                <span>L'application Skyrock disponible sur iOS et Android</span>
+                                <span>Rejoignez Fred tous les soirs de 20h à 21h</span>
+                                <span>/// Nouveau son en exclu dans quelques minutes ///</span>
+                                <span>Abonnez-vous pour soutenir la chaîne</span>
+                            </div>
+                        </div>
+
+                        <div className="absolute bottom-14 left-6 z-30 animate-slide-in">
+                            <div className="bg-black/90 border-l-4 border-[#ff5200] p-2 pr-4 shadow-lg max-w-md backdrop-blur-sm">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-[#ff5200] animate-spin-slow">🎵</span>
+                                    <div>
+                                        <p className="text-[#ff5200] text-[10px] font-bold uppercase tracking-wider">En Cours de lecture</p>
+                                        <p className="text-white font-bold text-sm leading-none truncate w-56">{currentTrack}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="absolute inset-x-0 bottom-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex flex-col justify-end pb-12 bg-gradient-to-t from-black/60 to-transparent">
+                            <div className="px-4 flex items-center justify-between text-white pointer-events-auto">
+                                <div className="flex items-center gap-3">
+                                    <div className="cursor-pointer hover:text-[#ff5200]">▶</div>
+                                    <span className="cursor-pointer hover:text-[#ff5200]">🔊</span>
+                                    <div className="text-xs font-bold text-red-500 flex items-center gap-1"><span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span> LIVE</div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="cursor-pointer hover:text-[#ff5200]">⚙️</span>
+                                    <span className="cursor-pointer hover:text-[#ff5200]">⛶</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-[#18181b] p-3 border-b border-[#2d2d30] flex justify-between items-start h-24">
+                        <div className="flex gap-3">
+                            <div className="w-12 h-12 bg-gray-800 rounded-full border-2 border-[#ff5200] overflow-hidden relative group cursor-pointer">
+                                <img src="assets/SKYROCK_FM_LOGO.svg.png" alt="Skyrock" className="w-full h-full object-cover" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-bold text-white hover:text-[#ff5200] cursor-pointer hover:underline decoration-2 underline-offset-4">
+                                    LIVE 24/7 SKYROCK
+                                </h2>
+                                <p className="text-[#ff5200] font-medium text-xs mt-0.5">Skyrock</p>
+                                <div className="mt-1 flex gap-2">
+                                    <span className="bg-[#2d2d30] text-gray-300 text-[10px] px-2 py-0.5 rounded-full font-medium">Rap Français</span>
+                                    <span className="bg-[#2d2d30] text-gray-300 text-[10px] px-2 py-0.5 rounded-full font-medium">Live</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                            <div className="flex items-center gap-1 text-[#ff5200] font-bold text-sm">
+                                <span>👥</span>
+                                <span>{viewerCount.toLocaleString()}</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <div className="flex items-center gap-1 bg-[#ff5200] text-black px-2 py-1 rounded font-bold text-xs cursor-pointer hover:bg-white transition-colors">
+                                    <span>❤️</span>
+                                    <span>Suivre</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Colonne droite */}
+                <div className="w-72 bg-[#18181b] border-l border-[#2d2d30] flex flex-col flex-shrink-0 z-10">
+                    <div className="h-12 border-b border-[#2d2d30] flex items-center justify-between px-3 bg-[#18181b] shadow-sm">
+                        <h3 className="font-bold uppercase text-[10px] tracking-widest flex items-center gap-2 text-gray-300">
+                            💬 Chat
+                        </h3>
+                        <span className="text-gray-400">👥</span>
+                    </div>
+
+                    <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-3 space-y-2 font-medium text-sm scrollbar-thin scrollbar-thumb-gray-700">
+                        <div className="bg-[#ff5200]/10 border-l-2 border-[#ff5200] p-1.5 rounded mb-2 text-[10px]">
+                            <p className="font-bold text-[#ff5200] uppercase flex items-center gap-1">
+                                📌 Épinglé
+                            </p>
+                            <p className="text-gray-300 leading-tight">Bienvenue sur le chat Skyrock ! 🔥</p>
+                        </div>
+
+                        {messages.map((msg) => (
+                            <div key={msg.id} className={`break-words leading-tight animate-fade-in text-[11px] ${msg.isMe ? 'bg-white/5 p-1.5 rounded border border-white/10' : ''}`}>
+                                <span className="text-[9px] text-gray-500 mr-1.5 font-mono align-middle">
+                                    {new Date(msg.id).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                </span>
+                                
+                                {msg.isMod && <span className="inline-flex items-center justify-center bg-[#ff5200] text-black text-[8px] h-3.5 px-1 rounded mr-1 font-bold align-middle">MOD</span>}
+                                {msg.type === 'fan' && <span className="inline-flex items-center justify-center bg-blue-600 text-white text-[8px] h-3.5 px-1 rounded mr-1 font-bold align-middle">PRIME</span>}
+                                
+                                <span style={{ color: msg.color }} className="font-bold hover:underline cursor-pointer align-middle mr-1">
+                                    {msg.user}
+                                </span>
+                                <span className="text-gray-400 mr-1">:</span>
+                                
+                                <span className={`align-middle ${msg.isHost ? 'text-[#ff5200] font-bold' : 'text-gray-200'}`}>
+                                    {msg.text.split(" ").map((word, i) => 
+                                        word.startsWith("@") ? <span key={i} className="bg-white/10 text-[#ff5200] px-1 rounded mx-0.5">{word}</span> : word + " "
+                                    )}
+                                </span>
+                            </div>
+                        ))}
+                        <div ref={chatEndRef} />
+                    </div>
+
+                    <div className="p-3 bg-[#18181b] border-t border-[#2d2d30]">
+                        <form onSubmit={handleSendMessage} className="relative">
+                            <input
+                                type="text"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                placeholder="Message..."
+                                className="w-full bg-[#2d2d30] text-white rounded pl-2 pr-8 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#ff5200] focus:bg-black placeholder-gray-500 transition-all border border-transparent focus:border-[#ff5200]/50"
+                            />
+                            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                                <span className="text-gray-400">😊</span>
+                            </div>
+                        </form>
+                        
+                        <div className="flex justify-between items-center mt-2">
+                            <div className="text-[#ff5200] font-bold text-[10px] flex items-center gap-1 cursor-pointer hover:bg-[#ff5200]/10 px-1 py-0.5 rounded transition-colors">
+                                👑
+                                <span>1200 Bits</span>
+                            </div>
+                            <button 
+                                onClick={handleSendMessage}
+                                disabled={!inputValue.trim()}
+                                className={`bg-[#ff5200] text-black font-bold py-1 px-3 rounded text-[10px] uppercase tracking-wide transition-all ${!inputValue.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white hover:scale-105'}`}
+                            >
+                                Chat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+              </div>
+
+              <style>{`
+                .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+                .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #3f3f46; border-radius: 2px; }
+                .scrollbar-thin::-webkit-scrollbar-track { background-color: transparent; }
+                
+                @keyframes marquee {
+                    0% { transform: translateX(100%); }
+                    100% { transform: translateX(-100%); }
+                }
+                .animate-marquee {
+                    animation: marquee 20s linear infinite;
+                }
+
+                .animate-spin-slow { animation: spin 4s linear infinite; }
+                @keyframes spin { 100% { transform: rotate(360deg); } }
+
+                .animate-fade-in { animation: fadeIn 0.1s ease-out; }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+                
+                .animate-slide-in { animation: slideIn 0.5s ease-out; }
+                @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+              `}</style>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('skyrock-stream-root'));
+        root.render(<SkyrockStream />);
+    </script>
+<script>
+    (() => {
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const GEMINI_KEY = window.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY';
+        const MODEL = 'gemini-1.5-flash-latest';
+
+        const addMessage = (author, text, color = 'text-white') => {
+            if (!chatMessages) return;
+            const div = document.createElement('div');
+            div.className = 'twitch-chat-msg';
+            div.innerHTML = `<span class="${color} font-bold">${author}:</span> ${text}`;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        const generateAIResponse = async (prompt) => {
+            if (!GEMINI_KEY || GEMINI_KEY === 'YOUR_GEMINI_API_KEY') {
+                throw new Error('Ajoute ta clé Gemini dans window.GEMINI_API_KEY');
+            }
+            const body = {
+                contents: [{ parts: [{ text: prompt }]}]
+            };
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`Gemini error: ${res.status} ${errText}`);
+            }
+            const data = await res.json();
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            return text || "Pas de réponse pour l'instant.";
+        };
+
+        chatForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = chatInput?.value?.trim();
+            if (!message) return;
+            addMessage('Toi', message, 'text-sky-red');
+            if (chatInput) chatInput.value = '';
+
+            const placeholderId = `ai-${Date.now()}`;
+            const placeholder = document.createElement('div');
+            placeholder.id = placeholderId;
+            placeholder.className = 'twitch-chat-msg';
+            placeholder.innerHTML = `<span class="text-green-400 font-bold">IA_Gemini:</span> ...`;
+            chatMessages?.appendChild(placeholder);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const aiText = await generateAIResponse(message);
+                placeholder.innerHTML = `<span class="text-green-400 font-bold">IA_Gemini:</span> ${aiText}`;
+            } catch (err) {
+                placeholder.innerHTML = `<span class="text-red-400 font-bold">IA_Gemini:</span> ${err.message}`;
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+    })();
+</script>
     <!-- BAND: FORCE DE FRAPPE -->
     <div class="red-band">
         <h2 class="text-center font-black font-sky text-4xl md:text-7xl text-black tracking-tighter">FORCE DE FRAPPE ACTUELLE</h2>
@@ -527,6 +975,10 @@
                                     <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 cursor-pointer hover:border-green-400 hover:text-white" onclick="document.getElementById('ai-input').value='Talk show nuit, 2h du mat, invités streamers + rappeurs, hotline auditeurs';">Night Talk</span>
                                     <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 cursor-pointer hover:border-green-400 hover:text-white" onclick="document.getElementById('ai-input').value='Défi cuisine quartier + live DJ set + tasting jurys habitants';">Cuisine x DJ</span>
                                 </div>
+                                <div class="mt-4">
+                                    <label class="text-[10px] text-green-400 font-bold uppercase mb-2 block tracking-[0.2em]">>> Durée de l'event</label>
+                                    <input id="ai-duration" type="text" value="" placeholder="Ex: 45 min, 1h30, 2h" class="w-full bg-black/70 border border-white/10 p-3 text-white rounded-lg text-sm focus:border-green-500 focus:shadow-[0_0_15px_rgba(0,255,136,0.2)] outline-none placeholder-gray-500">
+                                </div>
                             </div>
                             <div class="flex items-center gap-3">
                                 <button onclick="generateRealConcept()" id="genBtn" class="flex-1 bg-green-500 hover:bg-green-400 text-black font-black py-4 rounded-xl uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-[0_0_25px_rgba(0,255,136,0.35)]">
@@ -560,6 +1012,426 @@
             </div>
         </div>
     </section>
+
+    <!-- SKYHOUSE 24/7 -->
+    <div class="red-band">
+        <h2 class="text-center font-black font-sky text-4xl md:text-7xl text-black tracking-tighter">SKYHOUSE 24/7</h2>
+    </div>
+
+    <!-- SKYHOUSE BLOCK -->
+    <style>
+        .glass-panel{background:rgba(18,18,18,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);transition:all 0.4s ease;}
+        .glass-panel:hover{border-color:rgba(237,28,36,0.5);transform:translateY(-5px);}
+        .creator-card{position:relative;overflow:hidden;border-radius:12px;transition:all 0.5s ease;height:380px;}
+        .creator-card img{transition:all 0.5s ease;filter:grayscale(100%);width:100%;height:100%;object-fit:cover;}
+        .creator-card:hover img{filter:grayscale(0%);transform:scale(1.05);}
+        .creator-overlay{background:linear-gradient(to top,rgba(0,0,0,0.95),rgba(0,0,0,0.5),transparent);opacity:1;transition:all 0.3s ease;position:absolute;bottom:0;left:0;width:100%;padding:20px;}
+        .creator-card:hover .creator-overlay{background:linear-gradient(to top,rgba(237,28,36,0.9),rgba(0,0,0,0.5),transparent);}
+        .small-card{background:#111;border:1px solid #222;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px;transition:all 0.3s;}
+        .small-card:hover{background:#1a1a1a;border-color:#ed1c24;transform:translateX(5px);}
+        .small-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;filter:grayscale(100%);}
+        .small-card:hover .small-avatar{filter:grayscale(0%);}
+        .twitch-chat-msg{font-size:11px;margin-bottom:6px;animation:slideIn 0.2s ease-out;}
+        .badge-live{background:#ed1c24;color:white;padding:2px 6px;border-radius:4px;font-weight:800;font-size:10px;letter-spacing:1px;}
+        .check-item{display:flex;align-items:start;gap:12px;margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.05);}
+        .check-icon{color:#ed1c24;font-size:18px;margin-top:2px;}
+        @keyframes slideIn{from{transform:translateX(-10px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+    </style>
+
+    <section class="min-h-screen flex items-center justify-center relative px-6 pt-32 pb-20">
+        <div class="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-sky-red/5 to-transparent pointer-events-none"></div>
+        <div class="max-w-7xl w-full relative z-10 grid lg:grid-cols-2 gap-16 items-center">
+            <div class="space-y-8">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded border border-white/10 bg-white/5">
+                    <span class="w-2 h-2 bg-madara-green rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-code uppercase tracking-widest text-gray-300">Strategy Pivot V7</span>
+                </div>
+                <h1 class="font-sky text-6xl md:text-8xl leading-[0.9] font-black text-white">
+                    SKYROCK <br> <span class="text-sky-red">CREATORS</span> <br> LABEL.
+                </h1>
+                <div class="border-l-4 border-sky-red pl-6 space-y-4">
+                    <p class="text-xl text-gray-300 max-w-xl leading-relaxed">
+                        Le nouvel arc narratif : live natif digital pensé pour Twitch et les plateformes. <br>
+                        <strong class="text-white">Énergie brute du web, sans héritage à traîner.</strong>
+                    </p>
+                    <p class="text-sm text-gray-400 max-w-lg">
+                        Skyrock se positionne comme catalyseur des créateurs nouvelle génération : contenus 100% digitaux, équipes dédiées, workflows temps réel. Aucune étiquette legacy, uniquement la puissance d'une marque qui maîtrise le terrain urbain.
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <button class="bg-white text-black font-black font-sky px-8 py-4 rounded-lg hover:bg-gray-200 transition-colors uppercase tracking-widest">
+                        Découvrir la Squad
+                    </button>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="glass-panel p-2 rounded-3xl relative z-10 bg-black/80 rotate-1 hover:rotate-0 transition-transform duration-500">
+                    <div class="bg-[#111] rounded-[20px] p-8 text-center relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-32 bg-sky-red/20"></div>
+                        <div class="w-32 h-32 mx-auto bg-black rounded-full p-2 relative z-10 mt-10">
+                            <div class="w-full h-full rounded-full bg-sky-red flex items-center justify-center overflow-hidden border-4 border-black">
+                                <img src="assets/SKYROCK_FM_LOGO.svg.png" class="w-16 invert">
+                            </div>
+                        </div>
+                        <h2 class="font-sky font-black text-2xl mt-4">SKYROCK_SQUAD <i class="fa-solid fa-certificate text-blue-500 text-sm"></i></h2>
+                        <p class="text-gray-500 text-xs font-code mb-6">@skyrock_digital • Label de Créateurs</p>
+                        <div class="grid grid-cols-3 gap-4 border-t border-white/10 pt-6">
+                            <div>
+                                <div class="font-black text-xl text-white">4.2M</div>
+                                <div class="text-[10px] text-gray-500 uppercase">Followers</div>
+                            </div>
+                            <div>
+                                <div class="font-black text-xl text-white">30+</div>
+                                <div class="text-[10px] text-gray-500 uppercase">Talents</div>
+                            </div>
+                            <div>
+                                <div class="font-black text-xl text-white">24/7</div>
+                                <div class="text-[10px] text-gray-500 uppercase">Stream</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -z-10 top-10 -right-10 w-64 h-64 bg-sky-red rounded-full blur-[100px] opacity-40"></div>
+                <div class="absolute -z-10 bottom-10 -left-10 w-64 h-64 bg-purple-600 rounded-full blur-[100px] opacity-40"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-6 bg-[#080808] border-y border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                <div>
+                    <span class="text-sky-red font-bold tracking-widest text-xs uppercase mb-2 block">Casting 2.0</span>
+                    <h2 class="font-sky text-4xl md:text-6xl font-black text-white">LA SQUAD <span class="text-sky-red">ÉLITE</span></h2>
+                    <p class="text-gray-400 text-sm mt-2">Les 10 piliers qui portent la chaîne H24.</p>
+                </div>
+                <div class="text-right">
+                    <div class="font-black text-5xl font-sky text-white">10</div>
+                    <div class="text-xs text-gray-500 uppercase tracking-widest">Headliners</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-20">
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="assets/dzind,fke.jpeg" alt="L'Agitateur">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-purple-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">HOST</span></div><h3 class="font-sky font-black text-xl italic uppercase">L'AGITATEUR</h3><p class="text-[10px] text-gray-300 mt-1">Le Boss du Stream. Talk & Clash.</p></div>
+                </div>
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1964&auto=format&fit=crop">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-pink-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">LIFESTYLE</span></div><h3 class="font-sky font-black text-xl italic uppercase">LA TREND</h3><p class="text-[10px] text-gray-300 mt-1">Mode, Gossip, Coulisses.</p></div>
+                </div>
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-green-500 text-black text-[9px] font-bold px-1.5 py-0.5 rounded">TECH</span></div><h3 class="font-sky font-black text-xl italic uppercase">LE GEEK</h3><p class="text-[10px] text-gray-300 mt-1">Gaming, E-sport, Hardware.</p></div>
+                </div>
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?q=80&w=1968&auto=format&fit=crop">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-yellow-500 text-black text-[9px] font-bold px-1.5 py-0.5 rounded">FOOD</span></div><h3 class="font-sky font-black text-xl italic uppercase">LE DALLEUX</h3><p class="text-[10px] text-gray-300 mt-1">Street Food, Grecs, Reviews.</p></div>
+                </div>
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=1949&auto=format&fit=crop">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">RAP</span></div><h3 class="font-sky font-black text-xl italic uppercase">LA PUNCHLINE</h3><p class="text-[10px] text-gray-300 mt-1">Analyses, Clips, Réactions.</p></div>
+                </div>
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-orange-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">AUTO</span></div><h3 class="font-sky font-black text-xl italic uppercase">LE PILOTE</h3><p class="text-[10px] text-gray-300 mt-1">Gamos, Drift, Mécanique.</p></div>
+                </div>
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=2037&auto=format&fit=crop">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-red-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">HORREUR</span></div><h3 class="font-sky font-black text-xl italic uppercase">L'ORACLE</h3><p class="text-[10px] text-gray-300 mt-1">Paranormal, Threads, Nuit.</p></div>
+                </div>
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070&auto=format&fit=crop">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-gray-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">MMA</span></div><h3 class="font-sky font-black text-xl italic uppercase">LE COACH</h3><p class="text-[10px] text-gray-300 mt-1">Sport, Bagarre, Mental.</p></div>
+                </div>
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-indigo-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">PRANK</span></div><h3 class="font-sky font-black text-xl italic uppercase">LE JOKER</h3><p class="text-[10px] text-gray-300 mt-1">Micro-trottoir, Défis rue.</p></div>
+                </div>
+                <div class="creator-card bg-[#111] group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1974&auto=format&fit=crop">
+                    <div class="creator-overlay"><div class="flex gap-2 mb-1"><span class="bg-teal-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">CONFIDENCE</span></div><h3 class="font-sky font-black text-xl italic uppercase">LA VOIX</h3><p class="text-[10px] text-gray-300 mt-1">Love, ASMR, Conseils.</p></div>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-12">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="font-sky text-2xl font-black text-white">NICHES PRIORITAIRES</h3>
+                    <span class="text-xs font-code text-sky-red animate-pulse">● FORMATS À DÉPLOYER</span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div class="small-card"><div class="font-bold text-sm text-white">FIFA PRO</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">MAKEUP</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">VOYAGE</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">DANCE</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">BEATMAKER</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">SNEAKERS</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">HUMOUR</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">SCIENCE</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">SPORT</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">RAP</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">COOKING</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">MOTO</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">ART</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">FOOD</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">ASTRO</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">FOOT</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">VLOG</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">CODE</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">URBEX</div></div>
+                    <div class="small-card"><div class="font-bold text-sm text-white">MANGA</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-6 relative bg-gradient-to-b from-[#080808] to-black">
+        <div class="max-w-7xl mx-auto">
+            <div id="skyrock-stream-root" class="w-full"></div>
+        </div>
+    </section>
+
+    <!-- TWITCH TRACKER (juste au-dessus de la bannière Résultats) -->
+    <section class="py-24 px-6 bg-black">
+        <div class="max-w-7xl mx-auto">
+            <div id="twitch-tracker-root"></div>
+        </div>
+    </section>
+
+    <script type="text/babel">
+        const { useState: useStateTT, useEffect: useEffectTT } = React;
+
+        // Proxy Cloudflare (les credentials Twitch sont côté worker)
+        const WORKER_BASE = "https://twitch.madara-corporate.workers.dev";
+
+        const TwitchTracker = () => {
+          const [categories, setCategories] = useStateTT([]);
+          const [loading, setLoading] = useStateTT(true);
+          const [loadingProgress, setLoadingProgress] = useStateTT(0);
+          const [searchTerm, setSearchTerm] = useStateTT('');
+          const [error, setError] = useStateTT(null);
+          
+          const fetchAllStreams = async (gameId) => {
+            let cursor = null;
+            let aggregated = [];
+            let page = 0;
+            const maxPages = 5; // 5 x 100 = 500 max pour limiter la charge
+
+            while (page < maxPages) {
+              const url = new URL(`${WORKER_BASE}/helix/streams`);
+              url.searchParams.set('game_id', gameId);
+              url.searchParams.set('first', '100');
+              if (cursor) url.searchParams.set('after', cursor);
+
+              const res = await fetch(url.toString(), { cache: 'no-store' });
+              if (!res.ok) throw new Error(`Twitch streams: ${res.status}`);
+
+              const data = await res.json();
+              const streams = Array.isArray(data?.data) ? data.data : [];
+              aggregated = aggregated.concat(streams);
+
+              cursor = data?.pagination?.cursor;
+              page += 1;
+              if (!cursor || streams.length === 0) break;
+            }
+
+            return aggregated;
+          };
+
+
+          useEffectTT(() => {
+            const init = async () => {
+              try {
+                setLoading(true);
+                await fetchSmartData();
+              } catch (err) {
+                console.error(err);
+                setError(err.message);
+                setLoading(false);
+              }
+            };
+
+            init();
+            const interval = setInterval(() => {
+                fetchSmartData();
+            }, 60000);
+            return () => clearInterval(interval);
+          }, []); // eslint-disable-line
+
+          const fetchSmartData = async () => {
+            try {
+              setLoading(true);
+              setLoadingProgress(10);
+
+              const topGamesResponse = await fetch(`${WORKER_BASE}/helix/games/top?first=24`, { cache: 'no-store' });
+              if (!topGamesResponse.ok) throw new Error(`Twitch top games: ${topGamesResponse.status}`);
+              const topGamesData = await topGamesResponse.json();
+              const targetGames = Array.isArray(topGamesData?.data) ? topGamesData.data : [];
+              if (!targetGames.length) throw new Error('Pas de données Twitch (vérifie le worker)');
+
+              setLoadingProgress(30);
+
+              const promises = targetGames.map(async (game) => {
+                const streams = await fetchAllStreams(game.id);
+                
+                const totalViewers = streams.reduce((acc, stream) => acc + stream.viewer_count, 0);
+                const topStreamer = streams[0]?.user_name || 'Personne';
+                const activeStreams = streams.length;
+                const streamCountLabel = activeStreams >= 500 ? '500+' : activeStreams === 100 ? '100+' : activeStreams;
+
+                return {
+                  id: game.id,
+                  name: game.name,
+                  image: game.box_art_url.replace('{width}x{height}', '600x800'),
+                  viewers: totalViewers,
+                  streamCount: streamCountLabel,
+                  topStreamer: topStreamer,
+                  tag: 'Live'
+                };
+              });
+
+              const results = await Promise.all(promises);
+              setLoadingProgress(100);
+              setCategories(results.sort((a, b) => b.viewers - a.viewers));
+              setError(null);
+            } catch (err) {
+              setError(err.message);
+            } finally {
+              setLoading(false);
+            }
+          };
+
+          const formatNumber = (num) => new Intl.NumberFormat('fr-FR').format(num);
+
+          const filteredCategories = categories.filter(cat => 
+            cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+          const topCategory = filteredCategories[0];
+          const totalViewers = filteredCategories.reduce((acc, curr) => acc + curr.viewers, 0);
+
+          return (
+            <div className="w-full bg-[#050505] rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(255,255,255,0.05)]">
+              <header className="px-6 py-4 flex flex-col md:flex-row justify-between gap-4 items-start md:items-center bg-black/60 backdrop-blur border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white text-black px-3 py-2 rounded-xl text-xs font-bold tracking-wider">PULSE</div>
+                  <div>
+                    <div className="text-white font-bold text-sm">SMART AGGREGATION</div>
+                    <div className="text-[10px] uppercase tracking-[0.2em] text-green-400">Twitch Live Scan</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="text"
+                    placeholder="Filtrer..."
+                    className="bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-white/30"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <div className="hidden md:flex items-center gap-2 text-[10px] text-white/50 bg-white/5 border border-white/10 rounded-full px-3 py-2">
+                    <span>16:9</span><span>Live</span>
+                  </div>
+                </div>
+              </header>
+
+              {loading && (
+                <div className="h-1 bg-gradient-to-r from-purple-500 to-blue-500" style={{ width: `${loadingProgress}%` }}></div>
+              )}
+
+              <main className="p-6 md:p-8 space-y-10">
+                {error ? (
+                  <div className="text-center text-white">
+                    <div className="text-red-500 text-2xl font-bold mb-2">Connexion refusée</div>
+                    <div className="text-sm text-white/60">{error}</div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      <div className="flex flex-col justify-end">
+                        {loading && totalViewers === 0 ? (
+                          <div className="h-24 w-3/4 bg-white/5 animate-pulse rounded-3xl"></div>
+                        ) : (
+                          <h1 className="text-6xl md:text-7xl font-black text-white leading-tight">
+                            {formatNumber(totalViewers)}
+                          </h1>
+                        )}
+                        <div className="flex items-center gap-3 mt-4">
+                          <div className="h-px w-16 bg-white/40"></div>
+                          <span className="text-xs tracking-[0.3em] uppercase text-white/50">Audience (Top 24)</span>
+                        </div>
+                      </div>
+
+                      {topCategory && (
+                        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a0a0a]">
+                          <div className="absolute inset-0">
+                            <img src={topCategory.image} className="w-full h-full object-cover opacity-60" alt="Top Game" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                          </div>
+                          <div className="relative p-6 flex flex-col gap-4">
+                            <div className="flex justify-between items-start">
+                              <span className="text-[10px] font-bold uppercase tracking-widest bg-white/10 text-white px-3 py-1 rounded-full">#1 Mondial</span>
+                              <span className="text-white/60 text-sm">{topCategory.streamCount} streams</span>
+                            </div>
+                            <div className="flex justify-between items-end">
+                              <div>
+                                <h2 className="text-3xl font-bold text-white mb-1">{topCategory.name}</h2>
+                                <p className="text-white/70 text-sm">Top: {topCategory.topStreamer}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-2xl font-mono font-bold text-white">{formatNumber(topCategory.viewers)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <h3 className="text-lg font-bold text-white">Top Catégories</h3>
+                      <span className="text-[10px] text-white/50 uppercase">Data: Live</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {loading && categories.length === 0 ? (
+                        [...Array(8)].map((_, i) => (
+                          <div key={i} className="h-56 rounded-2xl bg-white/5 animate-pulse border border-white/5"></div>
+                        ))
+                      ) : (
+                        filteredCategories.slice(1).map((cat, i) => (
+                          <div key={cat.id} className="relative h-56 rounded-2xl overflow-hidden bg-[#0a0a0a] border border-white/10">
+                            <div className="absolute inset-0">
+                              <img src={cat.image} alt={cat.name} className="w-full h-full object-cover opacity-50" />
+                              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
+                            </div>
+                            <div className="relative z-10 h-full p-4 flex flex-col justify-between">
+                              <div className="flex justify-between text-[10px] text-white/60">
+                                <span>0{i + 2}</span>
+                                <span>Live</span>
+                              </div>
+                              <div>
+                                <h4 className="text-lg font-bold text-white mb-1 line-clamp-2">{cat.name}</h4>
+                                <div className="flex items-center justify-between text-xs text-white/70">
+                                  <span>Top: {cat.topStreamer}</span>
+                                  <span className="font-mono font-bold text-white">{formatNumber(cat.viewers)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </>
+                )}
+              </main>
+            </div>
+          );
+        };
+
+        const trackerRoot = document.getElementById('twitch-tracker-root');
+        if (trackerRoot) {
+            const tracker = ReactDOM.createRoot(trackerRoot);
+            tracker.render(<TwitchTracker />);
+        }
+    </script>
 
     <!-- BAND: RÉSULTATS -->
     <div class="red-band">
@@ -650,13 +1522,13 @@
         <div class="blob bg-white w-[800px] h-[300px] bottom-[-150px] left-1/2 transform -translate-x-1/2 opacity-5 blur-[100px]"></div>
         
         <div class="max-w-4xl mx-auto px-6 mb-20 reveal active relative z-10">
-            <p class="font-sky text-3xl md:text-5xl text-gray-600 leading-tight mb-8 italic">
-                "Au fond, il n'y a qu'un seul objectif : <br>
-                <span class="text-white">Redevenir mon Skyrock à moi.</span> <br>
-                Celui avec lequel j'ai grandi."
+            <p class="font-sky text-3xl md:text-5xl text-gray-100 leading-tight mb-8 italic">
+                "Un seul objectif : <br>
+                <span class="text-sky-red">Faire rayonner la puissance Skyrock sur Twitch.</span> <br>
+                Pour tous ceux qui arrivent, pour tous ceux qui ont grandi avec."
             </p>
             <div class="w-24 h-1 bg-red-600 mx-auto mb-8"></div>
-            <p class="text-xs font-mono text-gray-500 uppercase tracking-[0.4em]">Merci pour votre lecture.</p>
+            <p class="text-xs font-mono text-gray-400 uppercase tracking-[0.4em]">Merci pour votre lecture, Madara.</p>
         </div>
 
         <div class="flex items-center justify_center gap-4 mb-12 opacity-40 grayscale hover:grayscale-0 transition-all duration-700 hover:opacity-100 relative z-10">
@@ -705,6 +1577,7 @@
         const apiEndpoint = "https://skyrockmadara.madara-corporate.workers.dev/api/generate";
         async function generateRealConcept() {
             const input = document.getElementById('ai-input').value;
+            const duration = document.getElementById('ai-duration')?.value?.trim() || '1h';
             const output = document.getElementById('ai-output');
             const placeholder = document.getElementById('ai-placeholder');
             const btn = document.getElementById('genBtn');
@@ -717,6 +1590,7 @@
 
             const systemPrompt = `Tu es le Directeur des Programmes Visionnaire de Skyrock x Twitch.
             Ta mission : Créer un concept d'émission TV/Twitch ultra-détaillé et viral basé sur la demande de l'utilisateur.
+            Durée cible de l'event : ${duration}.
             
             Format de réponse attendu (HTML brut sans markdown) :
             <div class="animate-reveal space-y-8">
@@ -808,3 +1682,4 @@
     </script>
 </body>
 </html>
+
